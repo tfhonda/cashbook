@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="config.js"></script>
+
+  <style>
+    body {
+      font-size: 18px;
+      padding: 10px;
+    }
+    a {
+      font-size: 18px;
+      margin-right: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+    th, td {
+      padding: 6px;
+      border: 1px solid #000;
+      word-break: break-word;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+    }
+    button {
+      font-size: 16px;
+      padding: 6px 10px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        transform: scale(1.35);
+        transform-origin: top left;
+        width: 74%;
+        font-size: 20px;
+      }
+      table {
+        font-size: 18px;
+      }
+      button {
+        font-size: 18px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h2>現金出納帳 一覧</h2>
+
+  <p>
+    <a href="index.html">入力フォームへ</a> |
+    <a href="forecast.html">予測を見る</a>
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>日付</th><th>区分</th><th>科目</th><th>摘要</th>
+          <th>収入金額</th><th>支出金額</th><th>残高</th><th>年度</th><th>削除</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    window.onload = function() {
+    fetch(GAS_URL + "?action=list")
+      .then(res => res.json())
+      .then(records => {
+        const tbody = document.getElementById("tbody");
+        records.forEach(r => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${r.id}</td>
+            <td>${r.date}</td>
+            <td>${r.type}</td>
+            <td>${r.subject}</td>
+            <td>${r.tekiyo}</td>
+            <td style="text-align:right;">${r.income || ""}</td>
+            <td style="text-align:right;">${r.expense || ""}</td>
+            <td style="text-align:right;">${r.balance || ""}</td>
+            <td>${r.fy || ""}</td>
+            <td><button onclick="deleteRecord(${r.id})">削除</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+  };
+
+  function deleteRecord(id) {
+    if (!confirm("本当に削除しますか？（ID: " + id + "）")) return;
+
+    fetch(GAS_URL + "?action=delete&id=" + id)
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        location.reload();
+      });
+  }
+</script>
+</body>
+</html>
