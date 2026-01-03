@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>出納帳 一覧</title>
+
+  <script src="config.js"></script>
+
+  <style>
+    body {
+      font-size: 20px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      line-height: 1.6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>出納帳 一覧</h2>
+
+  <table id="listTable">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>区分</th>
+        <th>科目</th>
+        <th>摘要</th>
+        <th>金額</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button onclick="location.href='index.html'">入力画面へ戻る</button>
+
+  <script>
+    window.onload = function() {
+      fetch(GAS_URL + "?action=getList")
+        .then(res => res.json())
+        .then(rows => {
+          const tbody = document.querySelector("#listTable tbody");
+          tbody.innerHTML = "";
+
+          rows.forEach(r => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${r.date}</td>
+              <td>${r.type}</td>
+              <td>${r.subject}</td>
+              <td>${r.tekiyo}</td>
+              <td>${Number(r.amount).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          console.error("一覧取得エラー:", err);
+          alert("一覧データの取得に失敗しました");
+        });
+    };
+  </script>
+
+</body>
+</html>
